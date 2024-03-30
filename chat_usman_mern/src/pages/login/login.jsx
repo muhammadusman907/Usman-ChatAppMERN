@@ -13,13 +13,17 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { errorModal, successModal } from "../../helper/helper.js";
+import { useContext } from "react";
+import { AuthProvider } from "../../context/AuthProvider.js";
 // TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
-
 const Login = () => {
+  const navigate = useNavigate();
+  const { isLogin, updateIsLogin } = useContext(AuthProvider);
+  console.log("login page ", isLogin);
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -30,16 +34,11 @@ const Login = () => {
       })
       .then((res) => {
         console.log(res?.data);
-        const {token , status} = res?.data ;
-         localStorage.setItem("authTokan", JSON.stringify(token));
-         axios.get(
-           "http://localhost:5000/users/users6600aa6f715366f961d6d7a4",
-           {
-             headers: {
-               Authorization: `Bearer ${JSON.parse(localStorage.getItem("authTokan"))}`,
-             },
-           }
-         ).then(res => console.log(res)).catch(err => console.log(err));
+        const { token, status, userExist } = res?.data;
+        localStorage.setItem("authTokan", JSON.stringify(token));
+        localStorage.setItem("userData", JSON.stringify(userExist));
+        updateIsLogin(true);
+        navigate("/chat");
         successModal(status);
       })
       .catch((error) => {
