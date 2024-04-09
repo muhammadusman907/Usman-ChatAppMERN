@@ -14,32 +14,40 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 import { errorModal, successModal } from "../../helper/helper.js";
-// TODO remove, this demo shouldn't need to reset the theme.
+import { useContext } from "react";
+import { AuthProvider } from "../../context/AuthProvider.js";
 
 const defaultTheme = createTheme();
 
 const SignUp = () => {
+  const navigate = useNavigate();
+const { isLogin, updateIsLogin } = useContext(AuthProvider);
+  const API_URL = import.meta.env.VITE_API_URL;
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-      name: data.get("name"),
-    });
+    // console.log({
+    //   email: data.get("email"),
+    //   password: data.get("password"),
+    //   name: data.get("name"),
+    // });
     axios
-      .post("http://localhost:5000/auth/signup", {
+      .post(`${API_URL}/auth/signup`, {
         signupEmail: data.get("email"),
         signupPassword: data.get("password"),
         userName: data.get("name"),
       })
       .then((res) => {
-        const { status, token } = res.data; ;
+        const { status, token , addUser } = res?.data;
+        localStorage.setItem("authTokan", JSON.stringify(token));
+        localStorage.setItem("userData", JSON.stringify(addUser));
         successModal(status);
-           localStorage.setItem("authTokan", token);
+        updateIsLogin(true);
+        navigate("/chat")
         // localStorage.setItem("authTokan", token)
-        console.log(res.data );
+        console.log(res.data);
       })
       .catch((error) => {
         errorModal(error?.response?.data?.status);

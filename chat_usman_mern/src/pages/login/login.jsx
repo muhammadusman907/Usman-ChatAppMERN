@@ -21,6 +21,7 @@ import { AuthProvider } from "../../context/AuthProvider.js";
 
 const defaultTheme = createTheme();
 const Login = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const { isLogin, updateIsLogin } = useContext(AuthProvider);
   console.log("login page ", isLogin);
@@ -28,7 +29,7 @@ const Login = () => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     axios
-      .post("http://localhost:5000/auth/login", {
+      .post(`${API_URL}/auth/login`, {
         loginEmail: data.get("email"),
         loginPassword: data.get("password"),
       })
